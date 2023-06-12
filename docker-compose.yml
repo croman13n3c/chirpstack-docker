@@ -12,6 +12,7 @@ services:
       - postgres
       - mosquitto
       - redis
+      - influxdb
     environment:
       - MQTT_BROKER_HOST=mosquitto
       - REDIS_HOST=redis
@@ -61,6 +62,50 @@ services:
     volumes: 
       - ./configuration/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
+  influxdb:
+    image: influxdb:latest
+    networks:
+      - default
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    ports:
+      - 8086:8086
+    volumes:
+      - ./configuration/influxdb2/config:/etc/influxdb2
+      - influxdbdata:/var/lib/influxdb2
+    environment:
+      - INFLUXD_FLUX_LOG_ENABLED=true 
+  
+  telegraf:
+    image: telegraf
+    restart: always
+    volumes:
+      - ./configuration/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    depends_on:
+      - influxdb
+    links:
+      - influxdb
+    ports:
+      - 8125:8125
+
+  grafana:
+    image: grafana/grafana:latest
+    networks:
+      - default
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - ./configuration/grafana/provisioning:/etc/grafana/provisioning
+      - grafanadata:/var/lib/grafana
+    environment:
+      GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource'
+
 volumes:
   postgresqldata:
   redisdata:
+  grafanadata:
+  influxdbdata:
