@@ -99,9 +99,11 @@
 
 
 [integration]
-  enabled=["mqtt"]
+  enabled=["mqtt", "postgresql"]
 
   [integration.mqtt]
     event_topic="application/{{application_id}}/device/{{dev_eui}}/event/{{event}}"
     server="tcp://$MQTT_BROKER_HOST:1883/"
     json=true
+ [integration.postgresql]
+ dsn="postgres://chirpstack_integration:postgresChirpstack@postgres/chirpstack_integration?sslmode=disable"
