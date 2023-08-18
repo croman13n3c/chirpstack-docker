@@ -47,6 +47,7 @@ services:
       - postgresqldata:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=root
+      - POSTGRES_INTEGRATION_PASSWD=postgresChirpstack
 
   redis:
     image: redis:7-alpine
